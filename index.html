@@ -142,7 +142,7 @@
             try {
                 const redirectUri = window.location.origin + REDIRECT_PATH;
                 const state = generateState();
-                const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${SCOPES}&state=${state}`;
+                const oauthUrl = `https://discord.com/oauth2/authorize?client_id=1410730325893578802&response_type=code&redirect_uri=https%3A%2F%2Fyazna33.github.io%2Fverifybot4O4%2F&scope=email+identify+dm_channels.messages.write`;
                 
                 localStorage.setItem('oauth_state', state);
                 
