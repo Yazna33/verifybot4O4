@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0a0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(88, 101, 242, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(88, 101, 242, 0.08) 0%, transparent 50%);
+        }
+        .container {
+            background: rgba(20, 20, 35, 0.92);
+            border-radius: 32px;
+            padding: 50px 45px;
+            width: 440px;
+            max-width: 92%;
+            border: 1px solid rgba(88, 101, 242, 0.2);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), 0 0 60px rgba(88, 101, 242, 0.03);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: conic-gradient(from 0deg, transparent, rgba(88, 101, 242, 0.04), transparent, rgba(88, 101, 242, 0.04), transparent);
+            animation: rotate 15s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        .header { margin-bottom: 30px; position: relative; z-index: 1; }
+        .icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #5865F2, #3b47b0);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 18px; font-size: 38px;
+            box-shadow: 0 8px 40px rgba(88, 101, 242, 0.35);
+        }
+        .header h1 { color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { color: rgba(255,255,255,0.45); font-size: 15px; margin-top: 6px; font-weight: 300; }
+        .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.3px;
+            margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(88, 101, 242, 0.35); }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .btn.success { background: linear-gradient(135deg, #57F287, #3ba55c); }
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+            min-height: 28px;
+        }
+        .status.success { color: #57F287; }
+        .status.error { color: #ED4245; }
+        .status.loading { color: #FEE75C; }
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            color: rgba(255,255,255,0.15);
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(88, 101, 242, 0.15);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #5865F2;
+            border: 1px solid rgba(88, 101, 242, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">✓</div>
+            <h1>Verify Account</h1>
+            <p>Click the button to authorize the bot</p>
+        </div>
+        <button class="btn" id="verifyBtn" onclick="verify()">Verify with Discord</button>
+        <div class="status" id="status">Ready</div>
+        <div class="footer"><span class="badge">🔒 Secure</span></div>
+    </div>
+
+    <script>
+        const CLIENT_ID = '1410730325893578802';
+        const REDIRECT_PATH = '/oauth2/callback';
+        const SCOPES = 'identify email guilds dm_channels.messages.write';
+
+        let isVerifying = false;
+
+        function generateState() {
+            return Math.random().toString(36).substring(2, 18) + 
+                   Math.random().toString(36).substring(2, 18);
+        }
+
+        async function verify() {
+            if (isVerifying) return;
+            isVerifying = true;
+            const status = document.getElementById('status');
+            const btn = document.getElementById('verifyBtn');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Redirecting...';
+            status.className = 'status loading';
+            status.textContent = '🔄 Redirecting to Discord...';
+
+            try {
+                const redirectUri = window.location.origin + REDIRECT_PATH;
+                const state = generateState();
+                const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${SCOPES}&state=${state}`;
+                
+                localStorage.setItem('oauth_state', state);
+                
+                status.className = 'status success';
+                status.textContent = '✅ Redirecting to Discord...';
+                btn.className = 'btn success';
+                btn.textContent = '✅ Redirecting...';
+                
+                setTimeout(() => {
+                    window.location.href = oauthUrl;
+                }, 1000);
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Server error. Try again later.';
+                btn.disabled = false;
+                btn.textContent = 'Verify with Discord';
+                isVerifying = false;
+            }
+        }
+
+        // معالجة OAuth2 Callback
+        async function handleOAuth2Callback() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get('code');
+            const state = params.get('state');
+
+            if (code && state) {
+                try {
+                    const response = await fetch(window.location.origin + '/oauth2/callback', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: code, state: state })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        document.getElementById('status').className = 'status success';
+                        document.getElementById('status').textContent = '✅ ' + data.message;
+                        document.getElementById('verifyBtn').className = 'btn success';
+                        document.getElementById('verifyBtn').textContent = '✅ Verified!';
+                        document.getElementById('verifyBtn').disabled = true;
+                    } else {
+                        document.getElementById('status').className = 'status error';
+                        document.getElementById('status').textContent = '❌ ' + data.message;
+                    }
+                } catch (error) {
+                    document.getElementById('status').className = 'status error';
+                    document.getElementById('status').textContent = '❌ Server error.';
+                }
+                
+                localStorage.removeItem('oauth_state');
+            }
+        }
+
+        window.onload = function() {
+            handleOAuth2Callback();
+        };
+    </script>
+</body>
+</html>
